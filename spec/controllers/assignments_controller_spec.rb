@@ -159,4 +159,23 @@ describe AssignmentsController do
     end
   end
 
+  describe "POST reposition" do
+    it "reorders the assignments" do
+      FactoryGirl.create(:assignment, course: @course)
+      FactoryGirl.create(:assignment, course: @course)
+
+      course_ids = @course.assignments.map { |assignment| assignment.id }
+      reversed_ids = course_ids.reverse
+      post :reposition, :course_id => @course, :assignment => reversed_ids
+      new_course_ids = @course.assignments.map { |assignment| assignment.id }
+
+      puts "ORIG IDS: ", course_ids
+      puts "REVERSED IDS: ", reversed_ids
+      puts "NEW IDS: ", new_course_ids
+
+      new_course_ids should_not eq(course_ids)
+      new_course_ids should eq(reversed_assignments)
+    end
+  end
+
 end
