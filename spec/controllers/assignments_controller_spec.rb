@@ -163,18 +163,18 @@ describe AssignmentsController do
     it "reorders the assignments" do
       FactoryGirl.create(:assignment, course: @course)
       FactoryGirl.create(:assignment, course: @course)
+      
+      # Generate an array of the assignment ids in order and reversed
+      assignment_ids = @course.assignments.map { |assignment| assignment.id }
+      reversed_assignment_ids = assignment_ids.reverse
+      
+      # POST the reversed ids and reload the course to obtain updated assignment order
+      post :reposition, :course_id => @course, :assignment => reversed_assignment_ids
+      @course.reload
+      updated_assignment_ids = @course.assignments.map { |assignment| assignment.id }
 
-      course_ids = @course.assignments.map { |assignment| assignment.id }
-      reversed_ids = course_ids.reverse
-      post :reposition, :course_id => @course, :assignment => reversed_ids
-      new_course_ids = @course.assignments.map { |assignment| assignment.id }
-
-      puts "ORIG IDS: ", course_ids
-      puts "REVERSED IDS: ", reversed_ids
-      puts "NEW IDS: ", new_course_ids
-
-      new_course_ids should_not eq(course_ids)
-      new_course_ids should eq(reversed_assignments)
+      updated_assignment_ids.should_not eq(assignment_ids)
+      updated_assignment_ids.should eq(reversed_assignment_ids)
     end
   end
 
